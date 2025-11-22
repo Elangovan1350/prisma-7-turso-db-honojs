@@ -1,0 +1,24 @@
+{
+  "name": "prisma-7-turso-db-honojs",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.6",
+    "@prisma/adapter-libsql": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "dotenv": "^17.2.3",
+    "hono": "^4.10.6",
+    "libsql": "^0.5.22"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20.19.25",
+    "prisma": "^7.0.0",
+    "tsx": "^4.7.1",
+    "typescript": "^5.8.3"
+  }
+}
