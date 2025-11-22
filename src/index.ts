@@ -5,10 +5,13 @@ import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 const adapter = new PrismaLibSql({
-  url: `${process.env.TURSO_DATABASE_URL}`,
-  authToken: `${process.env.TURSO_AUTH_TOKEN}`,
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN,
 });
-const prisma = new PrismaClient({ adapter });
+
+const prisma = new PrismaClient({
+  adapter,
+});
 
 const app = new Hono();
 
