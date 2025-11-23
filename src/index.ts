@@ -34,12 +34,16 @@ app.get("/journaladd", async (c) => {
   return c.json(newJournal);
 });
 
-serve(
-  {
-    fetch: app.fetch,
-    port: 3000,
-  },
-  (info) => {
-    console.log(`Server is running on http://localhost:${info.port}`);
-  }
-);
+if (process.env.NODE_ENV !== "production") {
+  serve(
+    {
+      fetch: app.fetch,
+      port: 3001,
+    },
+    (info) => {
+      console.log(`Server is running on http://localhost:${info.port}`);
+    }
+  );
+}
+
+export default app;
