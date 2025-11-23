@@ -3,27 +3,39 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
-
 import { createClient } from "@libsql/client";
 
-const client = createClient({
-  url: process.env.LOCAL_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
-  syncUrl: process.env.TURSO_DATABASE_URL!,
-});
-const adapter = new PrismaLibSql({
+const libsql = createClient({
   url: process.env.TURSO_DATABASE_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-const prisma = new PrismaClient({
-  adapter,
+const adapter = new PrismaLibSql({
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN!,
 });
+
+const prisma = new PrismaClient({ adapter }).$extends({
+  query: {
+    $allModels: {
+      async $allOperations({ operation, args, query }) {
+        const result = await query(args);
+
+        if (["create", "update", "delete"].includes(operation)) {
+          await libsql.sync();
+        }
+
+        return result;
+      },
+    },
+  },
+});
+
 const app = new Hono();
 
 app.use("*", async (c, next) => {
-  client.sync();
-  next();
+  await libsql.sync(); // sync before handling request
+  await next();
 });
 
 app.get("/", (c) => {
