@@ -4,6 +4,13 @@ import { Hono } from "hono";
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 
+import { createClient } from "@libsql/client";
+
+const client = createClient({
+  url: process.env.LOCAL_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN!,
+  syncUrl: process.env.TURSO_DATABASE_URL!,
+});
 const adapter = new PrismaLibSql({
   url: process.env.TURSO_DATABASE_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN,
@@ -12,8 +19,12 @@ const adapter = new PrismaLibSql({
 const prisma = new PrismaClient({
   adapter,
 });
-
 const app = new Hono();
+
+app.use("*", async (c, next) => {
+  client.sync();
+  next();
+});
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
